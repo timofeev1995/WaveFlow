@@ -86,8 +86,8 @@ use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
 # LOAD DATASETS
-train_dataset = LJspeechDataset(args.data_path, True, 0.1)
-test_dataset = LJspeechDataset(args.data_path, False, 0.1)
+train_dataset = LJspeechDataset(args.data_path, True, 0.05)
+test_dataset = LJspeechDataset(args.data_path, False, 0.05)
 train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn,
                           num_workers=args.num_workers, pin_memory=True)
 test_loader = DataLoader(test_dataset, batch_size=args.batch_size, collate_fn=collate_fn,
@@ -138,7 +138,10 @@ def train(epoch, model, optimizer, scheduler):
         running_loss[1] += log_p.item() / display_step
         running_loss[2] += logdet.item() / display_step
 
-        pbar.set_description_str(f"Epoch: {global_epoch} | Step: {global_step} | Loss: {loss.item()} | Grad: {grad_norm}")
+        pbar.set_description_str(
+            f"Epoch: {global_epoch} | Step: {global_step} | Loss: {:.4f} | Grad: {:.4f}"
+                .format(global_epoch, global_step, loss.item(), grad_norm)
+        )
 
         epoch_loss += loss.item()
         if (batch_idx + 1) % display_step == 0:
