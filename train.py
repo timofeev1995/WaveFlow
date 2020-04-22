@@ -139,7 +139,7 @@ def train(epoch, model, optimizer, scheduler):
         running_loss[2] += logdet.item() / display_step
 
         pbar.set_description_str(
-            f"Epoch: {global_epoch} | Step: {global_step} | Loss: {:.4f} | Grad: {:.4f}"
+            "Epoch: {} | Step: {} | Loss: {:.4f} | Grad: {:.4f}"
                 .format(global_epoch, global_step, loss.item(), grad_norm)
         )
 
