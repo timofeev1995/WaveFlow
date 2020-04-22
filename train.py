@@ -1,18 +1,22 @@
-import torch
-from torch import optim
-import torch.nn as nn
-from torch.utils.data import DataLoader
-from data import LJspeechDataset, collate_fn, collate_fn_synthesize
-from model import WaveFlow
-from torch.distributions.normal import Normal
-import numpy as np
-import librosa
 import os
 import argparse
 import time
 import json
 import gc
+from tqdm import tqdm
+
+import numpy as np
+import librosa
+
+import torch
+import torch.nn as nn
+from torch import optim
+from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
+from torch.distributions.normal import Normal
+
+from data import LJspeechDataset, collate_fn, collate_fn_synthesize
+from model import WaveFlow
 from utils import get_lr
 
 torch.backends.cudnn.benchmark = True
@@ -105,12 +109,17 @@ def build_model():
 
 
 def train(epoch, model, optimizer, scheduler):
+
     global global_step
+    global global_epoch
+
     epoch_loss = 0.0
     running_loss = [0., 0., 0.]
-    model.train()
     display_step = 100
-    for batch_idx, (x, c) in enumerate(train_loader):
+
+    model.train()
+    pbar = tqdm(enumerate(train_loader), total=len(train_loader))
+    for batch_idx, (x, c) in pbar:
         global_step += 1
 
         x, c = x.to(device), c.to(device)
@@ -128,6 +137,8 @@ def train(epoch, model, optimizer, scheduler):
         running_loss[0] += loss.item() / display_step
         running_loss[1] += log_p.item() / display_step
         running_loss[2] += logdet.item() / display_step
+
+        pbar.set_description_str(f"Epoch: {global_epoch} | Step: {global_step} | Loss: {loss.item()} | Grad: {grad_norm}")
 
         epoch_loss += loss.item()
         if (batch_idx + 1) % display_step == 0:
