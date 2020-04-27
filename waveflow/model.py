@@ -153,23 +153,13 @@ class WaveFlow(nn.Module):
         B, _, T = x.size()
         logdet, log_p_sum = 0, 0
 
-        print('At start:')
-        print(x.size())
-        print(c.size())
-
         c = self.upsample(c)
         x, c = squeeze_to_2d(x, c, h=self.n_height)
         out = x
-        print('Upsampled:')
-        print(x.size())
-        print(c.size())
-        print('After:')
 
         for f, (flow) in enumerate(self.flows):
             out, c, logdet_new = flow(out, c)
             logdet = logdet + logdet_new
-            print(out.size())
-            print(c.size())
 
         # TODO: which log_p? the commented line is the one from the paper but the below is the correct Gaussian pdf..
         # log_p_sum += ((-0.5) * (log(2.0 * pi) + 2.0 * out.pow(2)).sum())
@@ -208,13 +198,3 @@ class WaveFlow(nn.Module):
             c = f(c)
         c = c.squeeze(1)
         return c
-
-
-if __name__ == "__main__":
-    x = torch.randn((1, 1, 15872))
-    c = torch.randn((1, 80, 62))
-    net = WaveFlow(1, 80, 128, 64, 8, 8, 5)
-    out = net(x, c)
-    print(1)
-
-
