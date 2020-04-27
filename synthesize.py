@@ -1,17 +1,12 @@
 import torch
-from torch import optim
-import torch.nn as nn
 from torch.utils.data import DataLoader
-from data import LJspeechDataset, collate_fn, collate_fn_synthesize
-from model import WaveFlow
-from torch.distributions.normal import Normal
+from waveflow.data import LJspeechDataset, collate_fn, collate_fn_synthesize
+from waveflow.model import WaveFlow
 import numpy as np
 import librosa
 import os
 import argparse
 import time
-import json
-import gc
 
 torch.backends.cudnn.benchmark = False
 np.set_printoptions(precision=4)

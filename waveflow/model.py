@@ -1,8 +1,7 @@
 import torch
 from torch import nn
 from math import log, pi
-from modules import Wavenet2D, Conv2D, ZeroConv2d
-import math
+from waveflow.modules import Wavenet2D, ZeroConv2d
 import torch.nn.functional as F
 from torch.distributions.normal import Normal
 
@@ -154,13 +153,23 @@ class WaveFlow(nn.Module):
         B, _, T = x.size()
         logdet, log_p_sum = 0, 0
 
+        print('At start:')
+        print(x.size())
+        print(c.size())
+
         c = self.upsample(c)
         x, c = squeeze_to_2d(x, c, h=self.n_height)
         out = x
+        print('Upsampled:')
+        print(x.size())
+        print(c.size())
+        print('After:')
 
-        for flow in self.flows:
+        for f, (flow) in enumerate(self.flows):
             out, c, logdet_new = flow(out, c)
             logdet = logdet + logdet_new
+            print(out.size())
+            print(c.size())
 
         # TODO: which log_p? the commented line is the one from the paper but the below is the correct Gaussian pdf..
         # log_p_sum += ((-0.5) * (log(2.0 * pi) + 2.0 * out.pow(2)).sum())
@@ -202,11 +211,10 @@ class WaveFlow(nn.Module):
 
 
 if __name__ == "__main__":
-    x = torch.randn((2, 1, 15872)).cuda()
-    c = torch.randn((2, 80, 62)).cuda()
-    net = WaveFlow(1, 80, 128, 64, 8, 8, 5).cuda()
+    x = torch.randn((1, 1, 15872))
+    c = torch.randn((1, 80, 62))
+    net = WaveFlow(1, 80, 128, 64, 8, 8, 5)
     out = net(x, c)
+    print(1)
 
-    net.eval()
-    with torch.no_grad():
-        out = net.reverse(c)
+

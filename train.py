@@ -13,11 +13,10 @@ import torch.nn as nn
 from torch import optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-from torch.distributions.normal import Normal
 
-from data import LJspeechDataset, collate_fn, collate_fn_synthesize
-from model import WaveFlow
-from utils import get_lr
+from waveflow.data import LJspeechDataset, collate_fn, collate_fn_synthesize
+from waveflow.model import WaveFlow
+from waveflow.utils import get_lr
 
 torch.backends.cudnn.benchmark = True
 np.set_printoptions(precision=4)
